@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelcaGlow - Beauty, Style & More</title>
+    <!-- Ikon dari FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font dari Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- File CSS External -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+   
+
+    <!-- Modal Login & Create Account dengan Kolom Voucher -->
+    <div class="auth-overlay" id="authOverlay" onclick="closeAuthModal()"></div>
+    <div class="auth-modal" id="authModal">
+        <!-- Dekorasi Lengkungan Lembut di Bagian Atas -->
+        <div class="auth-top-blob"></div>
+
+        <!-- Tombol Kembali (muncul saat di mode Daftar) & Tombol Tutup -->
+        <button class="auth-back-btn" id="authBackBtn" onclick="switchAuthMode('login')" style="display: none;">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="auth-close-btn" onclick="closeAuthModal()">&times;</button>
+
+        <!-- FORM 1: LOGIN -->
+        <div class="auth-view" id="loginView">
+            <h2 class="auth-title">Login</h2>
+            <p class="auth-subtitle">
+                Belum punya akun? <a href="javascript:void(0)" onclick="switchAuthMode('signup')">Daftar sekarang</a>
+            </p>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <!-- Input Nomor HP / Email -->
+                <div class="pill-input-group">
+                    <span class="input-prefix">+62</span>
+                    <input type="text" id="loginIdentity" placeholder="Nomor HP atau Email" required>
+                </div>
+
+                <!-- Input Password -->
+                <div class="pill-input-group">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="loginPassword" placeholder="Kata Sandi" required>
+                    <a href="javascript:void(0)" class="forgot-link" onclick="showToast('Link reset kata sandi dikirim ke email!')">LUPA</a>
+                </div>
+
+                <!-- Input Kode Voucher -->
+                <div class="pill-input-group voucher-input-group">
+                    <i class="fa-solid fa-ticket input-icon"></i>
+                    <input type="text" id="loginVoucher" placeholder="Kode Voucher (Opsional, cth: WELCOME10)">
+                    <span class="voucher-tag">PROMO</span>
+                </div>
+
+                <!-- Tombol Login di Kanan Bawah -->
+                <div class="auth-action-row">
+                    <button type="submit" class="btn-auth-submit">
+                        Login <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Opsi Login Sosial Media -->
+            <div class="social-auth-row">
+                <button type="button" class="social-circle-btn apple" onclick="socialLogin('Apple')"><i class="fa-brands fa-apple"></i></button>
+            <button type="button" class="social-circle-btn facebook" onclick="socialLogin('Facebook')"><i class="fa-brands fa-facebook-f"></i></button>
+            <button type="button" class="social-circle-btn google" onclick="socialLogin('Google')"><i class="fa-brands fa-google"></i></button>
+            <button type="button" class="social-circle-btn twitter" onclick="socialLogin('Twitter')"><i class="fa-brands fa-twitter"></i></button>
+            </div>
+        </div>
+
+        <!-- FORM 2: CREATE ACCOUNT (DAFTAR AKUN) -->
+        <div class="auth-view" id="signupView" style="display: none;">
+            <h2 class="auth-title">Buat Akun</h2>
+            <p class="auth-subtitle">
+                Sudah punya akun? <a href="javascript:void(0)" onclick="switchAuthMode('login')">Masuk di sini</a>
+            </p>
+
+            <form id="signupForm" onsubmit="handleSignup(event)">
+                <!-- Input Nama Lengkap -->
+                <div class="pill-input-group">
+                    <input type="text" id="signupName" placeholder="Nama Lengkap" required>
+                </div>
+
+                <!-- Input Email atau Nomor HP -->
+                <div class="pill-input-group">
+                    <input type="text" id="signupContact" placeholder="Email atau Nomor HP" required>
+                </div>
+
+                <!-- Input Kata Sandi -->
+                <div class="pill-input-group">
+                    <input type="password" id="signupPassword" placeholder="Kata Sandi" required>
+                </div>
+
+                <!-- Input Kode Voucher -->
+                <div class="pill-input-group voucher-input-group">
+                    <i class="fa-solid fa-ticket input-icon"></i>
+                    <input type="text" id="signupVoucher" placeholder="Kode Voucher (cth: WELCOME10)">
+                    <span class="voucher-tag">DISKON</span>
+                </div>
+
+                <!-- Tombol Sign Up di Kanan Bawah -->
+                <div class="auth-action-row">
+                    <button type="submit" class="btn-auth-submit">
+                        Daftar <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Audio Backsound (Tersembunyi & Loop) -->
+  <audio id="backsound" autoplay loop>
+    <source src="audio.mp3" type="audio/mpeg">
+  </audio>
+
+
+    <!-- Bilah Pengumuman Atas -->
+    <div class="top-bar">
+        <span><i class="fa-solid fa-truck-fast"></i> Gratis Ongkir untuk Pesanan di Atas Rp 500rb</span>
+        <span>✨ DISKON 10% untuk Pesanan Pertama | Kode: <strong>WELCOME10</strong></span>
+        <div class="social-top">
+            <a href="https://wa.me/6283190351717?s=t"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="https://www.tiktok.com/@apalohh3419?_r=1&_t=ZS-9BJC2oPW4wQ"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="https://www.instagram.com/scrtmha11___?mdxt=anA2dXkzZndsYWY0"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+    </div>
+
+    <!-- Navigasi Utama Header -->
+    <header class="navbar">
+        <a href="#" class="brand-logo">MelcaGlow <span>♡</span></a>
+        
+        <nav class="nav-links">
+            <a href="#hero">Beranda</a>
+            <a href="#categories">Kategori</a>
+            <a href="#bestsellers">Produk Terlaris</a>
+            <a href="#footer">Tentang</a>
+        </nav>
+
+        <div class="nav-icons">
+           
+            <button class="icon-btn" title="Akun Saya"><i class="fa-regular fa-user"></i></button>
+            <button class="icon-btn cart-toggle" id="cartBtn" title="Keranjang">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Bagian Banner Utama (Hero Section) -->
+    <section class="hero-section" id="hero">
+        <div class="hero-content">
+            <p class="handwritten-tag">Look Good ♡ Feel Better</p>
+            <h1 class="hero-title">Beauty, Style & <br>More — <i>All in One Place</i></h1>
+            <p class="hero-subtitle">Temukan esensial kecantikanmu menggunakan produk dari MelcaGlow— dirancang khusus untuk membuat Anda merasa istimewa setiap hari.</p>
+            <a href="#bestsellers" class="btn-primary">Belanja Sekarang <i class="fa-solid fa-arrow-right-long"></i></a>
+
+            <div class="features-row">
+                <div class="feature-item">
+                    <i class="fa-solid fa-truck"></i>
+                    <span>Pengiriman Cepat</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Pembayaran Aman</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-regular fa-heart"></i>
+                    <span>Pelanggan Puas</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image-wrap">
+            <img src="img/foto2.jpeg" alt="Model GlowNest" class="hero-img">
+            <span class="decorative-note">Kecantikanmu Prioritas Kami ♡</span>
+        </div>
+    </section>
+
+    <!-- Bagian Kategori Produk -->
+    <section class="section" id="categories">
+        <div class="section-header">
+            <h2 class="section-title">Belanja Berdasarkan Kategori <span class="heart-icon">♡</span></h2>
+        </div>
+        <div class="categories-grid">
+            <div class="category-card" onclick="filterCategory('all')">
+                <div class="cat-img-box">
+                   <video autoplay loop muted playsinline width="100%">
+                  <source src="img/vmakeup.mp4" type="video/mp4">
+                  Browser Anda tidak mendukung tag video.
+                </video>
+                </div>
+                <span class="cat-name">Makeup <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+
+            <div class="category-card" onclick="filterCategory('skincare')">
+                <div class="cat-img-box">
+                     <video autoplay loop muted playsinline width="100%">
+                  <source src="img/vskincare.mp4" type="video/mp4">
+                  Browser Anda tidak mendukung tag video.
+                </video>
+                </div>
+                <span class="cat-name">Skincare <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+
+            <div class="category-card" onclick="filterCategory('nails')">
+                <div class="cat-img-box">
+                   <video autoplay loop muted playsinline width="100%">
+                  <source src="img/vart.mp4" type="video/mp4">
+                  Browser Anda tidak mendukung tag video.
+                </video>
+                </div>
+                <span class="cat-name">Aksesori Kuku <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+
+            <div class="category-card" onclick="filterCategory('Hair care')">
+                <div class="cat-img-box">
+                     <video autoplay loop muted playsinline width="100%">
+                  <source src="img/vhaircare.mp4" type="video/mp4">
+                  Browser Anda tidak mendukung tag video.
+                </video>
+                </div>
+                <span class="cat-name">Hair care <i class="fa-solid fa-arrow-right"></i></span>
+                
+            </div>
+
+            <div class="category-card" onclick="filterCategory('Body care')">
+                <div class="cat-img-box">
+                    <video autoplay loop muted playsinline width="100%">
+                  <source src="img/vbody.mp4" type="video/mp4">
+                  Browser Anda tidak mendukung tag video.
+                </video>
+                </div>
+                <span class="cat-name">Body care<i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bagian Produk Terlaris -->
+    <section class="section" id="bestsellers">
+        <div class="section-header">
+            <div>
+                <p class="sub-title">Pilihan Populer</p>
+                <h2 class="section-title">Produk Terlaris <span class="heart-icon">♡</span></h2>
+            </div>
+            <button class="btn-outline" onclick="filterCategory('all')">Lihat Semua <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <div class="products-grid" id="productsGrid">
+            <!-- Konten produk akan dimuat secara dinamis melalui JavaScript -->
+        </div>
+    </section>
+          
+
+        <!-- Bagian Katalog Semua Produk (All Products) -->
+    <section class="section" id="all-products">
+        <div class="section-header all-products-header">
+            <div>
+                <p class="sub-title">Koleksi Lengkap Kami ♡</p>
+                <h2 class="section-title">Semua Produk <span class="heart-icon">♡</span></h2>
+            </div>
+
+            <!-- Kontrol Pencarian & Filter Kategori -->
+            <div class="catalog-controls">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="productSearchInput" placeholder="Cari produk impianmu..." onkeyup="searchAllProducts()">
+                </div>
+                <div class="filter-tabs" id="catalogFilterTabs">
+                   <button class="filter-tab active" onclick="filterAllCatalog('all', this)">Semua</button>
+                    <button class="filter-tab" onclick="filterAllCatalog('skincare', this)">Skincare</button>
+                    <button class="filter-tab" onclick="filterAllCatalog('makeup', this)">Makeup</button>
+                    <button class="filter-tab" onclick="filterAllCatalog('Nails Art', this)">Nails Art</button>
+                    <button class="filter-tab" onclick="filterAllCatalog('Body Care', this)">Body Care</button>
+                     <button class="filter-tab" onclick="filterAllCatalog('Hair Care', this)">Hair Care</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid Kartu Editorial Semua Produk -->
+        <div class="all-products-grid" id="allProductsGrid">
+            <!-- Kartu produk akan dimuat secara dinamis oleh JavaScript -->
+        </div>
+
+        <!-- Tombol Muat Lebih Banyak -->
+        <div class="explore-more-wrap">
+            <button class="btn-plum" id="loadMoreBtn" onclick="toggleShowAllProducts()">
+                Jelajahi Lebih Banyak <i class="fa-solid fa-chevron-down"></i>
+            </button>
+        </div>
+    </section>
+
+      <!-- Bagian Ulasan Pelanggan (Review / Testimonial) -->
+    <section class="section" id="reviews">
+        <div class="section-header">
+            <div>
+                <p class="sub-title">Kata Mereka ♡</p>
+                <h2 class="section-title">Ulasan Pelanggan <span class="heart-icon">♡</span></h2>
+            </div>
+            <button class="btn-outline" id="toggleReviewFormBtn" onclick="toggleReviewForm()">
+                <i class="fa-solid fa-pen"></i> Tulis Ulasan
+            </button>
+        </div>
+
+        <!-- Form Tambah Review (Secara default tersembunyi/slide down) -->
+        <div class="review-form-wrapper" id="reviewFormWrapper">
+            <form id="reviewForm" onsubmit="submitReview(event)">
+                <h3>Bagikan Pengalaman Anda ✨</h3>
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="reviewerName" placeholder="Contoh: Amanda Putri" required>
+                </div>
+                <div class="form-group">
+                    <label>Rating Produk</label>
+                    <div class="star-rating-input">
+                        <i class="fa-solid fa-star star-btn" data-value="1"></i>
+                        <i class="fa-solid fa-star star-btn" data-value="2"></i>
+                        <i class="fa-solid fa-star star-btn" data-value="3"></i>
+                        <i class="fa-solid fa-star star-btn" data-value="4"></i>
+                        <i class="fa-solid fa-star star-btn active" data-value="5"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Ulasan Anda</label>
+                    <textarea id="reviewerText" rows="4" placeholder="Ceritakan bagaimana perasaan Anda setelah menggunakan produk dari MelcaGlow..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Kirim Ulasan Saya</button>
+            </form>
+        </div>
+
+        <!-- Grid Kartu Review (Layout Card Estetik) -->
+        <div class="reviews-grid" id="reviewsGrid">
+            <!-- Kartu review akan dibuat dan ditambahkan secara otomatis oleh JavaScript -->
+        </div>
+    </section>
+    
+    <!-- Banner Penawaran Spesial Promo -->
+    <section class="promo-banner">
+        <div class="promo-img-left">
+            <img src="img/store.jpeg"Koleksi Makeup>
+        </div>
+        <div class="promo-content">
+            <span class="promo-tag">PENAWARAN SPESIAL</span>
+            <h2>Dapatkan Diskon 15% OFF <br><i class="handwritten-title">Untuk Pesanan Pertamamu</i></h2>
+            <div class="coupon-box">Gunakan Kode: <strong>WELCOME10</strong></div>
+        </div>
+        <div class="promo-note">
+            <span>Karena Anda berhak mendapatkan yang terbaik ♡</span>
+        </div>
+    </section>
+
+    <!-- Bagian Footer / Catatan Bawah -->
+    <footer class="footer" id="footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <a href="#" class="brand-logo">GlowNest <span>♡</span></a>
+                <p>Toko serba ada untuk kecantikan, fashion, dan kebutuhan gaya hidup Anda. Karena Anda berhak untuk bersinar!</p>
+               
+            </div>
+
+            <div class="footer-col">
+                <h4>Link Cepat</h4>
+                <ul>
+                    <li><a href="#hero">Beranda</a></li>
+                    <li><a href="#bestsellers">Belanja</a></li>
+                    <li><a href="#footer">Tentang Kami</a></li>
+                    <li><a href="#footer">Kontak</a></li>
+                    <li><a href="#footer">FAQ</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Layanan Pelanggan</h4>
+                <ul>
+                    <li><a href="#">Informasi Pengiriman</a></li>
+                    <li><a href="#">Pengembalian & Retur</a></li>
+                    <li><a href="#">Kebijakan Privasi</a></li>
+                    <li><a href="#">Syarat & Ketentuan</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Berlangganan</h4>
+                <p>Jadilah yang pertama mengetahui produk terbaru dan penawaran spesial!</p>
+                <div class="newsletter-form">
+                   <div class="social-links">
+                    <a href="https://wa.me/6283190351717?s=t"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="https://www.instagram.com/scrtmha11___?mdxt=anA2dXkzZndsYWY0"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@apalohh3419?_r=1&_t=ZS-9BJC2oPW4wQ"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 MelcaGlow. Hak cipta dilindungi undang-undang.</p>
+            <p class="handwritten-tag">Shop Happy ♡</p>
+        </div>
+    </footer>
+
+    <!-- Panel Keranjang Belanja Samping (Cart Drawer) -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3>Keranjang Belanja (<span id="cartCountHeader">0</span>)</h3>
+            <button class="cart-close" id="cartClose">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Daftar item keranjang akan ditampilkan di sini oleh JavaScript -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Subtotal:</span>
+                <span class="total-price" id="cartTotal">Rp 0</span>
+            </div>
+            <button class="btn-primary btn-checkout" onclick="checkout()">Lanjutkan ke Pembayaran</button>
+        </div>
+    </div>
+
+    <!-- Notifikasi Pop-up (Toast) -->
+    <div class="toast" id="toast">Produk berhasil ditambahkan ke keranjang!</div>
+
+    
+
+    <!-- File JavaScript External -->
+    <script src="script.js"></script>
+</body>
+</html>
